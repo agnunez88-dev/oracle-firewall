@@ -1,0 +1,22 @@
+CREATE TABLE FIREWALL_LOGON_LOG
+(
+  USER_SESSION  VARCHAR2(50 BYTE),
+  IP_ADDRESS    VARCHAR2(50 BYTE),
+  MODULE        VARCHAR2(50 BYTE),
+  ID_FECHA      DATE
+)
+TABLESPACE users
+PCTFREE    10
+INITRANS   1
+MAXTRANS   255
+STORAGE    (
+            INITIAL          1M
+            NEXT             1M
+            MINEXTENTS       1
+            MAXEXTENTS       UNLIMITED
+            PCTINCREASE      0
+            BUFFER_POOL      DEFAULT
+           )
+LOGGING 
+NOCOMPRESS 
+NOCACHE;

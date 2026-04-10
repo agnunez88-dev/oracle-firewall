@@ -1,0 +1,1 @@
+{"connection": [{"database": "TEST", "user": "lolo", "password": "Test*123", "service_name": "test.localdomain"}, {"database": "TEST1", "user": "pepe", "password": "Test1*123", "service_name": "test1.localdomain"}]

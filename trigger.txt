@@ -1,0 +1,41 @@
+CREATE OR REPLACE TRIGGER SYS.GLOBAL_LOGON_FIREWALL
+AFTER LOGON
+ON DATABASE
+DECLARE
+   p_session_user  varchar2(64);
+   p_module        varchar2(64);
+   p_ip_address    varchar2(64);
+   v_raise_app	   number(1);
+BEGIN
+
+   v_raise_app := 1;
+   p_session_user := TRIM(UPPER(SYS_CONTEXT('USERENV', 'SESSION_USER')));
+   p_module := TRIM(UPPER(SYS_CONTEXT('USERENV', 'MODULE')));
+   p_ip_address := TRIM(UPPER(SYS_CONTEXT('USERENV', 'IP_ADDRESS')));
+
+   IF (p_session_user IN ('SYS','SYSTEM')) THEN
+      v_raise_app := 0;
+   END IF;
+
+   IF (p_session_user = 'APP_X') AND (p_ip_address ='127.0.0.1') and
+      (p_module IN ('IISEXPRESS.EXE','W3WP.EXE')) THEN
+      v_raise_app := 0;
+   END IF;
+
+   IF (p_session_user = 'WEB_APP' ) AND (p_ip_address ='127.0.0.1')  AND
+      (p_module IN ('IISEXPRESS.EXE','W3WP.EXE','WEBDEV.WEBSERVER40.EXE','DEVENV.EXE')) THEN
+      v_raise_app := 0;
+   END IF;
+
+   IF (p_session_user = 'CHECK_MK') AND (REGEXP_LIKE(p_ip_address, '^192.168.5.[0-9]')) AND (p_module like 'SQLPLUS@%') THEN
+      v_raise_app := 0;
+   END IF;   
+
+   IF ((p_ip_address is not null) and (v_raise_app = 1)) THEN
+      insert into FIREWALL_LOGON_LOG
+      values (p_session_user, p_ip_address, p_module, sysdate);
+      commit;
+      RAISE_APPLICATION_ERROR(-20003,'You are not allowed to connect to the database');
+   END IF;
+END;
+/
